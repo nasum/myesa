@@ -28,7 +28,10 @@ func searchCmd(client esa.Client, team string) *cobra.Command {
 				return error
 			}
 
-			return displayConsole.ShowArticles(response.Posts)
+			for _, value := range response.Posts {
+				displayConsole.ShowArticles(value)
+			}
+			return nil
 		},
 	}
 

@@ -3,6 +3,7 @@ package lib
 import (
 	"fmt"
 
+	"github.com/fatih/color"
 	"github.com/upamune/go-esa/esa"
 )
 
@@ -10,11 +11,22 @@ import (
 type DisplayConsole struct {
 }
 
-// ShowArticles is print article
-func (d *DisplayConsole) ShowArticles(articles []esa.PostResponse) error {
-	for _, value := range articles {
-		fmt.Println(value.Name)
-	}
+// ShowTimeStamp is output colored timestamp
+func (d *DisplayConsole) ShowTimeStamp(timestamp string) string {
+	green := color.New(color.FgGreen).SprintFunc()
+	return green(timestamp)
+}
 
+// ShowUrl is output colored url
+func (d *DisplayConsole) ShowUrl(url string) string {
+	yellow := color.New(color.FgYellow).SprintFunc()
+	return yellow(url)
+}
+
+// ShowArticles is print article
+func (d *DisplayConsole) ShowArticles(article esa.PostResponse) error {
+	createdAt := article.CreatedAt
+
+	fmt.Fprintf(color.Output, "%s\t%s\t%s\n", d.ShowUrl(article.URL), d.ShowTimeStamp(createdAt), article.Name)
 	return nil
 }
