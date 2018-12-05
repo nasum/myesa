@@ -9,6 +9,7 @@ import (
 	"github.com/upamune/go-esa/esa"
 )
 
+// RootCmd is root command
 var RootCmd = &cobra.Command{
 	Use:           "myesa",
 	Short:         "esa client",
@@ -33,5 +34,6 @@ func init() {
 	cobra.OnInitialize()
 	RootCmd.AddCommand(
 		searchCmd(*client, team),
+		editCmd(*client, team),
 	)
 }
