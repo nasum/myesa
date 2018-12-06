@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 
@@ -22,7 +24,20 @@ func editCmd(client esa.Client, team string) *cobra.Command {
 				fmt.Println("$EDITOR not found.")
 				return nil
 			}
-			execEditor(editor)
+
+			body := execEditor(editor)
+			post := esa.Post{
+				Name:   args[0],
+				BodyMd: body,
+			}
+			response, err := client.Post.Create(team, post)
+
+			if err != nil {
+				log.Fatal(err)
+				return nil
+			}
+
+			fmt.Println(response.URL)
 			// response, error := client.Post.GetPosts(team, query)
 			return nil
 		},
@@ -31,16 +46,24 @@ func editCmd(client esa.Client, team string) *cobra.Command {
 	return cmd
 }
 
-func execEditor(editor string) {
-	fmt.Println(editor)
-	cmd := exec.Command("/bin/bash", "-c", editor, "./__tmp__")
+func execEditor(editor string) string {
+	cmdstr := fmt.Sprintf("tpich __tmp__ & %s __tmp__", editor)
+	cmd := exec.Command("/bin/bash", "-c", cmdstr)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		fmt.Println(err)
-		fmt.Println("ERROR")
-		return
+
+	err := cmd.Run()
+
+	if err != nil {
+		log.Fatal(err)
 	}
-	fmt.Println("done")
+
+	data, err := ioutil.ReadFile("./__tmp__")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return string(data)
 }
