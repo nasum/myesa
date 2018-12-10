@@ -17,5 +17,6 @@ func init() {
 	RootCmd.AddCommand(
 		searchCmd(),
 		editCmd(),
+		showCmd(),
 	)
 }
