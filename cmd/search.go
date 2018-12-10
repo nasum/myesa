@@ -6,18 +6,21 @@ import (
 
 	"github.com/nasum/myesa/lib"
 	"github.com/spf13/cobra"
-	"github.com/upamune/go-esa/esa"
 )
 
+// SearchParams is search paramater
 type SearchParams struct {
 	Count          int
 	IncludeComment string
 	Debug          bool
 }
 
-func searchCmd(client esa.Client, team string) *cobra.Command {
+func searchCmd() *cobra.Command {
 	displayConsole := &lib.DisplayConsole{}
 	searchParams := &SearchParams{}
+	esaClient := &lib.EsaClient{}
+
+	esaClient.Init()
 
 	cmd := &cobra.Command{
 		Use:   "search",
@@ -27,22 +30,20 @@ func searchCmd(client esa.Client, team string) *cobra.Command {
 			if len(args) == 0 {
 				return nil
 			}
+
 			query := url.Values{}
-			query.Add("q", args[0])
+			query.Add("name", args[0])
 			if searchParams.IncludeComment != "" {
 				query.Add("comment", searchParams.IncludeComment)
 			}
-			response, error := client.Post.GetPosts(team, query)
 
 			if searchParams.Debug {
 				fmt.Println(query.Encode())
 			}
 
-			if error != nil {
-				return error
-			}
+			articles := esaClient.Search(query)
 
-			for _, value := range response.Posts {
+			for _, value := range articles {
 				displayConsole.ShowArticles(value)
 			}
 			return nil

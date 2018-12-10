@@ -27,6 +27,6 @@ func (d *DisplayConsole) ShowUrl(url string) string {
 func (d *DisplayConsole) ShowArticles(article esa.PostResponse) error {
 	createdAt := article.CreatedAt
 
-	fmt.Fprintf(color.Output, "%s\t%s\t%s\n", d.ShowUrl(article.URL), d.ShowTimeStamp(createdAt), article.Name)
+	fmt.Fprintf(color.Output, "%s\t%s\t%s\n", d.ShowUrl(article.URL), d.ShowTimeStamp(createdAt), article.FullName)
 	return nil
 }

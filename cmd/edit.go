@@ -7,11 +7,14 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/nasum/myesa/lib"
 	"github.com/spf13/cobra"
-	"github.com/upamune/go-esa/esa"
 )
 
-func editCmd(client esa.Client, team string) *cobra.Command {
+func editCmd() *cobra.Command {
+	esaClient := &lib.EsaClient{}
+
+	esaClient.Init()
 
 	cmd := &cobra.Command{
 		Use:   "edit",
@@ -25,20 +28,21 @@ func editCmd(client esa.Client, team string) *cobra.Command {
 				return nil
 			}
 
-			body := execEditor(editor)
-			post := esa.Post{
-				Name:   args[0],
-				BodyMd: body,
-			}
-			response, err := client.Post.Create(team, post)
+			articles := esaClient.GetArticlesByName(args[0])
 
-			if err != nil {
-				log.Fatal(err)
-				return nil
-			}
+			if len(articles) == 1 {
+				body := execEditor(editor, articles[0].BodyMd)
 
-			fmt.Println(response.URL)
-			// response, error := client.Post.GetPosts(team, query)
+				url := esaClient.Update(articles[0].Number, args[0], body)
+
+				fmt.Println(url)
+			} else {
+				body := execEditor(editor, "")
+
+				url := esaClient.Create(args[0], body)
+
+				fmt.Println(url)
+			}
 			return nil
 		},
 	}
@@ -46,13 +50,16 @@ func editCmd(client esa.Client, team string) *cobra.Command {
 	return cmd
 }
 
-func execEditor(editor string) string {
-	file, err := os.OpenFile("__tmp__", os.O_CREATE, 0666)
+func execEditor(editor string, body string) string {
+	file, err := os.OpenFile("__tmp__", os.O_WRONLY|os.O_CREATE, 0666)
 
 	if err != nil {
-		//エラー処理
 		log.Fatal(err)
 		return ""
+	}
+
+	if body != "" {
+		fmt.Fprintln(file, body)
 	}
 
 	defer os.Remove(file.Name())
