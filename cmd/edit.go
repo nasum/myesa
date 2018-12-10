@@ -47,22 +47,34 @@ func editCmd(client esa.Client, team string) *cobra.Command {
 }
 
 func execEditor(editor string) string {
-	cmdstr := fmt.Sprintf("tpich __tmp__ & %s __tmp__", editor)
+	file, err := os.OpenFile("__tmp__", os.O_CREATE, 0666)
+
+	if err != nil {
+		//エラー処理
+		log.Fatal(err)
+		return ""
+	}
+
+	defer os.Remove(file.Name())
+
+	cmdstr := fmt.Sprintf("%s __tmp__", editor)
 	cmd := exec.Command("/bin/bash", "-c", cmdstr)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	err := cmd.Run()
+	err = cmd.Run()
 
 	if err != nil {
 		log.Fatal(err)
+		return ""
 	}
 
 	data, err := ioutil.ReadFile("./__tmp__")
 
 	if err != nil {
 		log.Fatal(err)
+		return ""
 	}
 
 	return string(data)
