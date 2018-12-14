@@ -10,9 +10,9 @@ import (
 
 // SearchParams is search paramater
 type SearchParams struct {
-	Count          int
-	IncludeComment string
-	Debug          bool
+	Count       int
+	Interactive bool
+	Debug       bool
 }
 
 func searchCmd() *cobra.Command {
@@ -25,7 +25,7 @@ func searchCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "search",
 		Short: "search articles",
-		Args:  cobra.RangeArgs(1, 1),
+		Args:  cobra.RangeArgs(0, 1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return nil
@@ -33,8 +33,8 @@ func searchCmd() *cobra.Command {
 
 			query := url.Values{}
 			query.Add("name", args[0])
-			if searchParams.IncludeComment != "" {
-				query.Add("comment", searchParams.IncludeComment)
+			if searchParams.Interactive {
+				lib.Interactive()
 			}
 
 			if searchParams.Debug {
@@ -51,7 +51,7 @@ func searchCmd() *cobra.Command {
 	}
 
 	flags := cmd.Flags()
-	flags.StringVarP(&searchParams.IncludeComment, "include-comment", "i", "", "include comment")
+	flags.BoolVarP(&searchParams.Interactive, "interactive", "i", false, "interactive")
 	flags.BoolVarP(&searchParams.Debug, "debug", "d", false, "show request url")
 
 	return cmd
