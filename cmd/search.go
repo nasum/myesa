@@ -32,7 +32,7 @@ func searchCmd() *cobra.Command {
 			}
 
 			query := url.Values{}
-			query.Add("name", args[0])
+			query.Add("", args[0])
 			if searchParams.IncludeComment != "" {
 				query.Add("comment", searchParams.IncludeComment)
 			}
